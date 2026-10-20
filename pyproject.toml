@@ -1,0 +1,42 @@
+[build-system]
+requires = ["hatchling>=1.27,<2"]
+build-backend = "hatchling.build"
+
+[project]
+name = "robotframework-azureprobe"
+version = "0.1.0"
+description = "Robot Framework keywords for checking Azure virtual machines through PowerShell."
+readme = "README.md"
+requires-python = ">=3.10"
+license = "MIT"
+license-files = ["LICENSE"]
+authors = [{name = "Sunny Bharne"}]
+dependencies = ["robotframework>=7,<8"]
+keywords = ["robotframework", "azure", "powershell", "testing"]
+classifiers = [
+  "Development Status :: 3 - Alpha",
+  "Framework :: Robot Framework :: Library",
+  "Programming Language :: Python :: 3",
+  "Topic :: Software Development :: Testing",
+]
+
+[project.urls]
+Homepage = "https://github.com/sunnybharne/robotframework-azureprobe"
+Issues = "https://github.com/sunnybharne/robotframework-azureprobe/issues"
+
+[project.optional-dependencies]
+dev = ["pytest>=8,<10", "ruff>=0.11,<1", "build>=1.2,<2"]
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/AzureProbe"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+markers = ["powershell: runs the real PowerShell executable with fake Azure modules"]
+
+[tool.ruff]
+target-version = "py310"
+line-length = 100
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B"]

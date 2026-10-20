@@ -1,0 +1,53 @@
+name: Library checks
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  checks:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-latest
+            python: '3.10'
+          - os: ubuntu-latest
+            python: '3.13'
+          - os: windows-latest
+            python: '3.12'
+          - os: macos-latest
+            python: '3.12'
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python }}
+      - name: Check PowerShell availability
+        shell: pwsh
+        run: |
+          if ($PSVersionTable.PSVersion.Major -lt 7) { throw 'PowerShell 7 is required.' }
+          $PSVersionTable.PSVersion.ToString()
+      - name: Install development dependencies
+        run: python -m pip install -e ".[dev]"
+      - name: Lint Python
+        run: python -m ruff check .
+      - name: Run offline tests including real PowerShell
+        run: python -m pytest -q
+      - name: Build distributions
+        run: python -m build
+      - name: Check installed wheel
+        shell: pwsh
+        run: |
+          $wheel = (Get-ChildItem dist/*.whl | Select-Object -First 1).FullName
+          python -m pip install --force-reinstall $wheel
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          python -c "from importlib.resources import files; assert files('AzureProbe').joinpath('scripts', 'Get-AzureVm.ps1').is_file()"
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          python -m robot --dryrun --outputdir results examples/vm_checks.robot
