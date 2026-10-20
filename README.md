@@ -159,6 +159,7 @@ python -m robot.libdoc AzureProbe::00000000-0000-0000-0000-000000000001 docs/key
 
 Generating documentation does not query Azure. See [CONTRIBUTING.md](CONTRIBUTING.md)
 for development checks and [the release guide](docs/releasing.md) for packaging.
+To verify a real VM, follow the [live Azure validation guide](docs/live-validation.md).
 
 ## Status and roadmap
 
